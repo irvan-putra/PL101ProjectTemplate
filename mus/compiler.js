@@ -10,6 +10,9 @@ var endTime = function (time, expr) {
     else if (expr.tag === 'par') {
         return Math.max(endTime(time, expr.left),endTime(time,expr.right));
     }
+    else if (expr.tag === 'rest') {
+        return time + expr.duration;
+    }
 };
 
 // maybe some helper functions
@@ -28,6 +31,14 @@ var compileWithTime = function (musexpr, time) {
     }
     else if (musexpr.tag === 'par') {
         return compileWithTime(musexpr.left,time).concat(compileWithTime(musexpr.right,time));
+    }
+    else if (musexpr.tag === 'rest') {
+        return [{
+            tag: musexpr.tag,
+            pitch: '',
+            start: time,
+            dur: musexpr.dur
+        }];
     }
 };
 
