@@ -16,12 +16,27 @@ var endTime = function (time, expr) {
 };
 
 // maybe some helper functions
+var letterPitch = function (letter) {
+	switch(letter) {
+		case 'c': return 0;
+		case 'd': return 2;
+		case 'e': return 4;
+		case 'f': return 5;
+		case 'g': return 7;
+		case 'a': return 9;
+		case 'b': return 11;
+	}
+};
+
+var convertPitch = function(pitch) {
+	return 12+12*Number(pitch.substr(-1)) + letterPitch(pitch.substr(0,1));
+};
 
 var compileWithTime = function (musexpr, time) {
     if (musexpr.tag === 'note') {
         return [{
             tag: musexpr.tag,
-            pitch: musexpr.pitch,
+            pitch: convertPitch(musexpr.pitch),
             start: time,
             dur: musexpr.dur
         }];
