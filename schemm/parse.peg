@@ -1,0 +1,35 @@
+start =
+    expression
+
+validchar
+    = [0-9a-zA-Z_?!+\-=@#$%^&*/.]
+
+atom =
+    chars:validchar+
+        { return chars.join(""); }
+
+molecule =
+	emptyMolecule
+  / oneAtomMolecule
+  / manyAtomMolecule
+
+emptyMolecule =
+	"(" ")"
+    { return []; }
+    
+oneAtomMolecule =
+	"(" oneAtom:expression ")"
+    { return [oneAtom]; }
+
+spaceAtom =
+	" " theAtom:expression
+    { return theAtom; }
+
+manyAtomMolecule =
+	"(" firstAtom:expression restAtom:spaceAtom* ")"
+    { return [firstAtom].concat(restAtom); }
+
+expression =
+	atom
+  / molecule
+    
