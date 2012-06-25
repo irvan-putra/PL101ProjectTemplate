@@ -4,10 +4,17 @@ start =
 validchar
 	= [0-9a-zA-Z_?!+\-=@#$%^&*/.]
 
+validcharPlusPlus
+	= [0-9a-zA-Z_?!+\-=@#$%^&*/. \t';]
+
 spaceFamily =
 	" "
 	/ "\n"
 	/ "\t"
+	/ comment
+
+comment =
+	";;" validcharPlusPlus* "\n"*
 
 atom =
 	chars:validchar+
