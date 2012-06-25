@@ -30,5 +30,13 @@ fullMolecule =
 	{ return [firstAtom].concat(restAtom); }
 
 expression =
+	quoted
+	/ nonQuoted
+
+quoted =
+	"'" first:expression
+	{ return ["quote",first]; }
+
+nonQuoted =
 	atom
 	/ molecule
