@@ -10,26 +10,20 @@ atom =
 
 molecule =
 	emptyMolecule
-	/ oneAtomMolecule
-	/ manyAtomMolecule
+	/ fullMolecule
 
 emptyMolecule =
 	"(" ")"
 	{ return []; }
     
-oneAtomMolecule =
-	"(" oneAtom:expression ")"
-	{ return [oneAtom]; }
-
 spaceAtom =
 	" " theAtom:expression
 	{ return theAtom; }
 
-manyAtomMolecule =
+fullMolecule =
 	"(" firstAtom:expression restAtom:spaceAtom* ")"
 	{ return [firstAtom].concat(restAtom); }
 
 expression =
 	atom
 	/ molecule
-    
