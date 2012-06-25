@@ -4,24 +4,29 @@ start =
 validchar
 	= [0-9a-zA-Z_?!+\-=@#$%^&*/.]
 
+spaceFamily =
+	" "
+	/ "\n"
+	/ "\t"
+
 atom =
 	chars:validchar+
 	{ return chars.join(""); }
+
+spaceAtom =
+	spaceFamily* theAtom:expression
+	{ return theAtom; }
 
 molecule =
 	emptyMolecule
 	/ fullMolecule
 
 emptyMolecule =
-	"(" ")"
+	spaceFamily* "(" spaceFamily* ")" spaceFamily*
 	{ return []; }
-    
-spaceAtom =
-	" " theAtom:expression
-	{ return theAtom; }
 
 fullMolecule =
-	"(" firstAtom:expression restAtom:spaceAtom* ")"
+	spaceFamily* "(" spaceFamily* firstAtom:expression restAtom:spaceAtom* spaceFamily* ")" spaceFamily*
 	{ return [firstAtom].concat(restAtom); }
 
 expression =
