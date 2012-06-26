@@ -1,3 +1,4 @@
+
 start =
 	expression
 
@@ -17,6 +18,15 @@ comment =
 	";;" validcharPlusPlus* "\n"*
 
 atom =
+	validNumbers
+	/ validChars
+
+validNumbers =
+	numbers:[0-9]+
+	{ return parseInt(numbers.join("")); }
+
+
+validChars =
 	chars:validchar+
 	{ return chars.join(""); }
 
