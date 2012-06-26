@@ -1,0 +1,53 @@
+start =
+	expression
+
+validpitch
+	= letter:[cdefgab] spec:[??]? numbers:[0-9]+
+	{ return letter.concat(spec).concat(numbers.join("")); }
+
+validnumbers
+	= numbers:[0-9]+
+	{ return numbers.join(""); }
+
+
+validchar
+	= [0-9a-zA-Z_?!+\-=@#$%^&*/.]
+
+validcharPlusPlus
+	= [0-9a-zA-Z_?!+\-=@#$%^&*/. \t';]
+
+spaceFamily =
+	" "
+	/ "\n"
+	/ "\t"
+	/ comment
+
+comment =
+	";;" validcharPlusPlus* "\n"*
+
+rest =
+	spaceFamily* "(" spaceFamily* tag:"rest" spaceFamily+ dur:validnumbers spaceFamily* ")" spaceFamily*
+	{ return {tag:tag,dur:dur}; }
+
+note =
+	spaceFamily* "(" spaceFamily* tag:"note" spaceFamily+ pitch:validpitch spaceFamily+ dur:validnumbers spaceFamily* ")" spaceFamily*
+	{ return {tag:tag,pitch:pitch, dur:dur}; }
+
+seq =
+	spaceFamily* "(" spaceFamily* tag:"seq" spaceFamily* left:expression spaceFamily* right:expression spaceFamily* ")" spaceFamily*
+	{ return {tag:tag,left:left, right:right}; }
+
+par =
+	spaceFamily* "(" spaceFamily* tag:"par" spaceFamily* left:expression spaceFamily* right:expression spaceFamily* ")" spaceFamily*
+	{ return {tag:tag,left:left, right:right}; }
+
+repeat =
+	spaceFamily* "(" spaceFamily* tag:"repeat" spaceFamily* count:validnumbers "x" spaceFamily* section:expression  spaceFamily* ")" spaceFamily*
+	{ return {tag:tag,section:section, count:count}; }
+
+expression =
+	rest
+	/ note
+	/ seq
+	/ par
+	/ repeat
