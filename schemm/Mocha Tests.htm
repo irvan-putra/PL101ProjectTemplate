@@ -12,9 +12,25 @@
   </script>
   <script src="http://nathansuniversity.com/js/mocha.js">
   </script>
+  <script src="parser.js"></script>
   <script>mocha.setup('tdd')</script>
   <script>
 var assert = chai.assert;
+
+suite('parse', function() {
+    test('a number', function() {
+        assert.deepEqual(
+            SCHEMM.parse('42'),
+            42
+        );
+    });
+    test('a variable', function() {
+        assert.deepEqual(
+            SCHEMM.parse('x'),
+            'x'
+        );
+    });
+});
 
 // A half-baked implementation of evalScheem
 var evalScheem = function (expr, env) {
