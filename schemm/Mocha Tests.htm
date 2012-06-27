@@ -17,21 +17,6 @@
   <script>
 var assert = chai.assert;
 
-suite('parse', function() {
-    test('a number', function() {
-        assert.deepEqual(
-            SCHEMM.parse('42'),
-            42
-        );
-    });
-    test('a variable', function() {
-        assert.deepEqual(
-            SCHEMM.parse('x'),
-            'x'
-        );
-    });
-});
-
 // A half-baked implementation of evalScheem
 var evalScheem = function (expr, env) {
     // Numbers evaluate to themselves
@@ -158,75 +143,62 @@ var evalScheem = function (expr, env) {
     }
 };
 
+var evalScheStr = function (scheStr, env) {
+	return evalScheem(SCHEMM.parse(scheStr),env);
+};
+
+
 // Some unit tests
 
 suite('Arithmetics', function() {
     test('a number', function() {
         assert.deepEqual(
-            evalScheem(5, {}),
+            evalScheStr('5', {}),
             5
         );
     });
     test('two plus three', function() {
         assert.deepEqual(
-            evalScheem(['+',2,3], {}),
+            evalScheStr('(+ 2 3)', {}),
             5
         );
     });
     test('two times three', function() {
         assert.deepEqual(
-            evalScheem(['*',2,3], {}),
+            evalScheStr('(* 2 3)', {}),
             6
         );
     });
     test('one per two', function() {
         assert.deepEqual(
-            evalScheem(['/',1,2], {}),
+            evalScheStr('(/ 1 2)', {}),
             1/2
         );
     });
     test('plus and divide then times', function() {
         assert.deepEqual(
-            evalScheem(['*',['/',8,4],['+',1,1]], {}),
+            evalScheStr('(* (/ 8 4)(+ 1 1))', {}),
             4
         );
     });
 });
 
 suite('Variable', function() {
-    test('a number', function() {
+    test('single variable', function() {
         assert.deepEqual(
-            evalScheem(5, {'x': 5}),
+            evalScheStr('x',{'x': 5}),
             5
         );
     });
-    test('a number', function() {
+    test('variable in equation', function() {
         assert.deepEqual(
-            evalScheem('x',{'x': 5}),
-            5
-        );
-    });
-    test('two plus three', function() {
-        assert.deepEqual(
-            evalScheem(['+',2,3], {'x': 5}),
-            5
-        );
-    });
-    test('two times three', function() {
-        assert.deepEqual(
-            evalScheem(['*',2,3],{'x': 5}),
-            6
-        );
-    });
-    test('five times three', function() {
-        assert.deepEqual(
-            evalScheem(['*','y',3], {'y':5}),
+            evalScheStr('(* y 3)', {'y':5}),
             15
         );
     });
-    test('plus then divide', function() {
+    test('equation in equation', function() {
         assert.deepEqual(
-            evalScheem(['/','z',['+','x','y']], {'x':3,'y':2, 'z':25}),
+            evalScheStr('(/ z (+ x y))', {'x':3,'y':2, 'z':25}),
             5
         );
     });
@@ -235,25 +207,25 @@ suite('Variable', function() {
 suite('Define & Set', function() {
     test('Begin 123', function() {
         assert.deepEqual(
-            evalScheem(['begin',1,2,3], {}),
+            evalScheStr('(begin 1 2 3)', {}),
             3
         );
     });
     test('Begin 2+2', function() {
         assert.deepEqual(
-            evalScheem(['begin',['+',2,2]], {}),
+            evalScheStr('(begin (+ 2 2))', {}),
             4
         );
     });
     test('Begin x y x', function() {
         assert.deepEqual(
-            evalScheem(['begin','x','y','x'],  {'x':3,'y':2, 'z':25}),
+            evalScheStr('(begin x y x)',  {'x':3,'y':2, 'z':25}),
             3
         );
     });
     test('Begin Sentence', function() {
         assert.deepEqual(
-            evalScheem(['begin',['define','x',5],['set!','x',['+','y','x']] ,'x'], {y:10}),
+            evalScheStr('(begin (define x 5)(set! x (+ y x)) x)', {y:10}),
             15
         );
     });
@@ -262,13 +234,13 @@ suite('Define & Set', function() {
 suite('Quote', function() {
     test('Quote list', function() {
         assert.deepEqual(
-            evalScheem(['quote',['+',2,3]], {}),
+            evalScheStr("'(+ 2 3)", {}),
             ['+',2,3]
         );
     });
     test('Quote quote', function() {
         assert.deepEqual(
-            evalScheem(['quote',['quote',['+',2,3]]], {}),
+            evalScheStr("''(+ 2 3)", {}),
             ['quote',['+',2,3]]
         );
     });
@@ -277,37 +249,37 @@ suite('Quote', function() {
 suite('Logic', function() {
     test('Less than', function() {
         assert.deepEqual(
-            evalScheem(['<',2,3], {}),
+            evalScheStr('(< 2 3)', {}),
             '#t'
         );
     });
     test('Less than or equal', function() {
         assert.deepEqual(
-            evalScheem(['<=',3,3], {}),
+            evalScheStr('(<= 3 3)', {}),
             '#t'
         );
     });
     test('Equal', function() {
         assert.deepEqual(
-            evalScheem(['=',2,3], {}),
+            evalScheStr('(= 2 3)', {}),
             '#f'
         );
     });
     test('More than or equal', function() {
         assert.deepEqual(
-            evalScheem(['>=',3,3], {}),
+            evalScheStr('(= 3 3)', {}),
             '#t'
         );
     });
     test('More than', function() {
         assert.deepEqual(
-            evalScheem(['>',2,3], {}),
+            evalScheStr('(> 2 3)', {}),
             '#f'
         );
     });
 	test('If', function() {
         assert.deepEqual(
-            evalScheem(['if',['=',1,1],['if',['=',2,3],10,11],12], {}),
+            evalScheStr('(if (= 1 1)(if(= 2 3)10 11)12)', {}),
             11
         );
     });
@@ -316,19 +288,19 @@ suite('Logic', function() {
 suite('List', function() {
     test('Cons', function() {
         assert.deepEqual(
-            evalScheem(['cons',['quote',[1,2]],['quote',[3,4]]], {}),
+            evalScheStr("(cons '(1 2) '(3 4))", {}),
             [[1,2],3,4]
         );
     });
     test('Car', function() {
         assert.deepEqual(
-            evalScheem(['car',['quote',[[1,2],3,4]]], {}),
+            evalScheStr("(car '((1 2)3 4))", {}),
             [1,2]
         );
     });
      test('Cdr', function() {
         assert.deepEqual(
-            evalScheem(['cdr',['quote',[[1,2],3,4]]], {}),
+            evalScheStr("(cdr '((1 2)3 4))", {}),
             [3,4]
         );
     });
@@ -337,17 +309,17 @@ suite('List', function() {
 suite('Errors', function() {
 	test('Define error if defined', function() {
        assert.throws(function () {
-            evalScheem(['begin',['define','x',3],['define','x',3]], {});
+            evalScheStr('(begin (define x 3)(define x 3))', {});
         });
     });
     test('Set error if undefined', function() {
        assert.throws(function () {
-            evalScheem(['set!','x',3], {});
+            evalScheStr('(set! x 3)', {});
         });
     });
     test('Error for wrong number of atoms', function() {
        assert.throws(function () {
-            evalScheem(['+',3], {});
+            evalScheStr('(+ 3)',{});
         });
     });
 });
